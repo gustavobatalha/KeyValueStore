@@ -309,12 +309,15 @@ class DynamoDbTest extends \PHPUnit_Framework_TestCase
 
     public function testTryingToFindAnItemThatDoesNotExist()
     {
+        $result = $this->getDynamoDbResultMock(['get']);
+        $result->expects($this->once())->method('get')->with('Item')->willReturn(null);
+
         $client = $this->getDynamoDbMock(['getItem']);
         $client->expects($this->once())->method('getItem')->with($this->equalTo([
             'TableName'      => 'MyTable',
             'ConsistentRead' => true,
             'Key'            => ['Id' => ['N' => '1000']],
-        ]))->willReturn(null);
+        ]))->willReturn($result);
 
         $storage = new DynamoDbStorage($client);
         $this->setExpectedException(
